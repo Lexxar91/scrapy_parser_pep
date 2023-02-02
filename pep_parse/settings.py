@@ -14,7 +14,4 @@ FEEDS = {
         'format': 'csv',
         'fields': ['number', 'name', 'status', ],
         'overwrite': True
-    }
-}
-
-
+    }}
