@@ -15,14 +15,24 @@ class PepSpider(scrapy.Spider):
         for link in href:
             yield response.follow(link, callback=self.parse_pep)
 
-    def parse_pep(self, response):
-        number_and_title = response.css('h1.page-title::text').get()
-        number_pep = number_and_title.split()
-        title_pep = number_and_title.split()
-        data = {
-            "number": number_pep[1],
-            "name": title_pep[3:],
-            "status": response.css('abbr::text').get()
-        }
+    #Давай здесь лучше воспользуемся встроенными инструментами в модуль, а не будем использовать сплит,
+    #а потом делать срезы. Здесь можно поступить, например, вот так:
+        #Получить таблицу.
+        #И после этого получить number подобным образом: table.css('dt:contains("PEP") + dd::text').get()
+        #Тоже самое сделаем и для статуса.
 
+    # Дмитрий, здравствуйте, не смог найти Вас в "пачке", решил написать тут.
+    # Я не очень понял какую именно таблицу брать? Которая на странице с PEP-ом?
+    # или с главной странице, где полный список PEP-ов?
+    # я не смог имплементировать код именно так как писали вы выше.
+    # И поняв что главное избавится от метода split() и срезов
+    # сделал чуть подругому,сгенерировал "регулярки" через ChatGPT
+    # "прекрутил" их к коду и получился тот же результат.
+    def parse_pep(self, response):
+        number = response.css('h1.page-title').re(r'<h1.*?>(PEP )(\d{1,4})')
+        data = {
+            "number": number[1],
+            "name": response.css('h1.page-title').re(r'– (.+)</h1>'),
+            "status": response.css('dt:contains("Status") + dd abbr::text').get()
+        }
         yield PepParseItem(data)

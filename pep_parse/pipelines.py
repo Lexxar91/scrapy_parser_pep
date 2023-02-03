@@ -22,11 +22,8 @@ class PepParsePipeline:
         """
         Подсчет количества pep-статусов.
         """
-        pep_status = item['status']
-        if self.results.get(pep_status):
-            self.results[pep_status] += 1
-        else:
-            self.results[pep_status] = 1
+        status = item['status']
+        self.results[status] = self.results.get(status, 0) + 1
         return item
 
     def close_spider(self, spider):
@@ -39,6 +36,5 @@ class PepParsePipeline:
         with open(file_dir, mode='w', encoding='utf-8') as f:
             writer = csv.writer(f, dialect='unix')
             writer.writerow((FIELDS_NAME))
-            for key, val in self.results.items():
-                writer.writerow([key, val])
+            writer.writerows(self.results.items())
             writer.writerow(['Total', sum(self.results.values())])
